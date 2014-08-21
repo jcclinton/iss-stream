@@ -20,7 +20,7 @@ function Coords(id, rate){
 		throw "invalid rate";
 	}
 
-	Readable.call(this, id, rate);
+	Readable.call(this);
 
 	this._id = id;
 	this._rate = rate;
