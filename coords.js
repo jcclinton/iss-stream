@@ -4,7 +4,7 @@ var https = require('https');
 var _ = require('underscore');
 
 
-// dont reject unauthorized ca
+// dont reject self signed ca
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
 util.inherits(Coords, Readable);
@@ -16,8 +16,7 @@ function Coords(id, rate){
 
 	// rate is the number of requests per minute
 	// it must be a non-negative integer
-	// it cant be run more than once per second
-	if( !_.isNumber(rate) || rate <= 1 || rate > 60 ){
+	if( !_.isNumber(rate) || rate <= 1 ){
 		throw "invalid rate";
 	}
 
@@ -25,40 +24,64 @@ function Coords(id, rate){
 
 	this._id = id;
 	this._rate = rate;
-	this._interval = null;
+	this._running = false;
 }
 
 Coords.prototype._read = function(n){
 }
 
 Coords.prototype.start = function(){
-	var milliseconds
-		, that = this
-		, url = "https://api.wheretheiss.at/v1/satellites/" + this._id
-		;
-
-		// convert requests/minute to milliseconds/request
-		milliseconds = Math.round((60 * 1000) / this._rate);
-
-	this._interval = setInterval(function(){
-
-		https.get(url, function(res){
-
-			res.on('data', function(data){
-				that.push(data);
-			});
-		});
-
-	}, milliseconds);
-
+		if( this._running ){
+			return;
+		}
+		this._running = true;
+		this._run();
 };
 
 
-Coords.prototype.stop = function(){
-	if(this._interval){
-		clearInterval(this._interval);
-		this._interval = null;
+Coords.prototype._run = function(){
+	var milliseconds = Math.round((60 * 10) / this._rate)
+		, url = "https://api.wheretheiss.at/v1/satellites/" + this._id
+		, that = this
+		;
+
+	if( !this._running ){
+		return;
 	}
+
+	https.get(url, function(res){
+
+		console.log(res.headers["x-rate-limit-remaining"]);
+
+		// wheretheiss returns a 429 status code when the timeout has been exceeded
+		if( res.statusCode == 200 ){
+			res.on('data', function(data){
+				that.push(data);
+			});
+
+			setTimeout(function(){
+				that._run();
+			}, milliseconds);
+
+		}else{
+			// if we hit the rate limit, wait 60 seconds to start again
+			console.log("rate limit");
+			var t = 1000 * 60;
+
+			that.stop();
+			setTimeout(function(){
+				console.log("starting again");
+				that.start();
+			}, t);
+		}
+
+	});
+
+}
+
+
+Coords.prototype.stop = function(){
+	this._running = false;
 }
 
 
