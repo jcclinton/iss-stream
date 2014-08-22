@@ -1,1 +1,1 @@
-echo "here"
+nodeunit test

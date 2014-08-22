@@ -8,16 +8,22 @@
        {
            "name": "Jamie Clinton",
            "email": "jcclinton24@gmail.com",
-           "web": "http://jcclinton24@gmail.com"
+           "web": "http://jamieclinton.com"
        }
    ],
    "contributors": [
 	],
    "bugs": {
+       "mail": "jcclinton24@gmail.com",
+       "web": "http://jamieclinton.com"
    },
    "licenses": [
    ],
-   "repositories": [
+   "repository": [
+       {
+           "type": "git",
+           "url": "http://"
+       } 
    ],
    "dependencies": {
    },
