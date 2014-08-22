@@ -4,7 +4,7 @@ var id = 25544;
 var rate = 60; // 60 requests / second
 
 // create coords stream for iss
-var iss = coords.create(id, rate);
+var iss = coords.create(id, rate, true);
 
 iss.on('readable', function(){
 	var data = iss.read();

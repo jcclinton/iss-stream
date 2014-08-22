@@ -9,7 +9,7 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 
 util.inherits(Coords, Readable);
 
-function Coords(id, rate){
+function Coords(id, rate, transform){
 	if(!_.isNumber(id) || id <= 0){
 		throw "invalid id";
 	}
@@ -25,6 +25,9 @@ function Coords(id, rate){
 	this._url = "https://api.wheretheiss.at/v1/satellites/" + id;
 	this._timeout = Math.round((60 * 1000) / rate);
 	this._running = false;
+	this._transform = transform;
+	this.lastLat = null;
+	this.lastLng = null;
 }
 
 Coords.prototype._read = function(n){
@@ -54,7 +57,7 @@ Coords.prototype._run = function(){
 		// wheretheiss returns a 429 status code when the timeout has been exceeded
 		if( res.statusCode == 200 ){
 			res.on('data', function(data){
-				that.push(data);
+				that.push(that._format(data));
 			});
 
 			// set next request to fire after a timeout
@@ -84,8 +87,47 @@ Coords.prototype.stop = function(){
 	this._running = false;
 }
 
+Coords.prototype._format = function(buffer){
+
+	var lat
+		, lng
+		, diff
+		, data
+		;
+
+	// if we are not transforming the data
+	// just pass it straight through
+	if( !this._transform ){
+		return buffer;
+	}
+
+	//data = JSON.parse(buffer.toJSON());
+	data = JSON.parse(buffer.toString());
+
+	lat = data.latitude;
+	lng = data.longitude;
+	//console.log(data);
+	//console.log(this.lastLat);
 
 
-exports.create = function(id, rate){
-	return new Coords(id, rate);
+	if( this.lastLat == null || this.lastLng == null ){
+		this.lastLat = lat;
+		this.lastLng = lng;
+		return '';
+	}
+
+	diff = {};
+
+	diff.latDiff = this.lastLat - lat;
+	diff.lngDiff = this.lastLng - lng;
+	this.lastLat = lat;
+	this.lastLng = lng;
+
+	return new Buffer(JSON.stringify(diff));
+}
+
+
+
+exports.create = function(id, rate, transform){
+	return new Coords(id, rate, transform);
 };
