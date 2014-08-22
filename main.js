@@ -1,7 +1,7 @@
 var coords = require("./coords.js");
 
 var id = 25544;
-var rate = 60; // 60 requests / second
+var rate = 2; // run every 2 seconds
 
 // create coords stream for iss
 var iss = coords.create(id, rate, true);
@@ -9,7 +9,7 @@ var iss = coords.create(id, rate, true);
 iss.on('readable', function(){
 	var data = iss.read();
 	if( data ){
-		console.log('data readeable: ' + data);
+		console.log(""+data);
 	}
 });
 
@@ -24,3 +24,13 @@ iss.on('error', function(){
 });
 
 iss.start();
+
+setTimeout(function(){
+	console.log("stopping");
+	iss.stop();
+}, 6000);
+
+setTimeout(function(){
+	console.log("starting");
+	iss.start();
+}, 15000);
