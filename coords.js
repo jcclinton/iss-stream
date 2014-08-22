@@ -22,12 +22,13 @@ function Coords(id, rate){
 
 	Readable.call(this);
 
-	this._id = id;
-	this._rate = rate;
+	this._url = "https://api.wheretheiss.at/v1/satellites/" + id;
+	this._timeout = Math.round((60 * 1000) / rate);
 	this._running = false;
 }
 
 Coords.prototype._read = function(n){
+	return this.push('');
 }
 
 Coords.prototype.start = function(){
@@ -40,18 +41,15 @@ Coords.prototype.start = function(){
 
 
 Coords.prototype._run = function(){
-	var milliseconds = Math.round((60 * 10) / this._rate)
-		, url = "https://api.wheretheiss.at/v1/satellites/" + this._id
-		, that = this
-		;
+		var that = this;
 
 	if( !this._running ){
 		return;
 	}
 
-	https.get(url, function(res){
+	https.get(this._url, function(res){
 
-		console.log(res.headers["x-rate-limit-remaining"]);
+		//console.log(res.headers["x-rate-limit-remaining"]);
 
 		// wheretheiss returns a 429 status code when the timeout has been exceeded
 		if( res.statusCode == 200 ){
@@ -59,18 +57,20 @@ Coords.prototype._run = function(){
 				that.push(data);
 			});
 
+			// set next request to fire after a timeout
 			setTimeout(function(){
 				that._run();
-			}, milliseconds);
+			}, that._timeout);
 
+		}else if( res.statusCode == 404 ){
+			that.stop();
+			that.emit('error');
 		}else{
 			// if we hit the rate limit, wait 60 seconds to start again
-			console.log("rate limit");
 			var t = 1000 * 60;
 
 			that.stop();
 			setTimeout(function(){
-				console.log("starting again");
 				that.start();
 			}, t);
 		}
