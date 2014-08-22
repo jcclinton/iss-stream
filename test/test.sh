@@ -1,1 +1,1 @@
-nodeunit test
+node test/test-locstream.js

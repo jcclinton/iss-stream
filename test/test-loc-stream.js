@@ -23,8 +23,8 @@ exports['request'] = function(test){
 		if( buffer ){
 			data = JSON.parse(buffer.toString());
 			newId = data.id;
-			lat = data.latitude;
-			lng = data.longitude;
+			lat = data.latDiff;
+			lng = data.lngDiff;
 			test.equal(typeof lat, "number");
 			test.equal(typeof lng, "number");
 			test.equal(data.id, id);
