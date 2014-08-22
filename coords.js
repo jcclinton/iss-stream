@@ -126,7 +126,9 @@ function format(buffer){
 		;
 
 	// convert buffer to object
-	data = JSON.parse(buffer.toString());
+	if( Buffer.isBuffer(buffer) ){
+		data = bufferToObj(buffer);
+	}
 
 	lat = data.latitude;
 	lng = data.longitude;
@@ -162,5 +164,13 @@ function format(buffer){
 		output.longitude = lng;
 	}
 
-	return new Buffer(JSON.stringify(output));
+	return objToBuffer(output);
+}
+
+function bufferToObj(buffer){
+	return JSON.parse(buffer.toString());
+}
+
+function objToBuffer(obj){
+	return new Buffer(JSON.stringify(obj));
 }
