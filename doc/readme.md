@@ -8,4 +8,4 @@ Id and rate must be non-negative numbers or an exception will be thrown.
 ###### test
 To run the unit tests, run `npm-run-script test` from the command line in the top level directory of the library.
 
-To run an example, run `node lib/example.js' from the command line in the top level directory of the library.
+To run an example, run `node lib/example.js` from the command line in the top level directory of the library.
