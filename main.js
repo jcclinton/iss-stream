@@ -1,4 +1,4 @@
-var coords = require("./coords.js");
+var coords = require("./lib/loc_stream.js");
 
 var id = 25544;
 var rate = 2; // run every 2 seconds
