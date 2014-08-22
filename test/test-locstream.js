@@ -1,4 +1,5 @@
-var locStream = require('../lib/loc_stream')
+var LocStream = require('../lib/loc_stream')
+	, DiffStream = require('../lib/diff_stream')
 	, specify = require('specify')
 	, id
 	, rate
@@ -10,7 +11,7 @@ rate = .001; // run every second
 
 // test that lat/lng values get put in stream
 specify('request-absolute', function(test){
-	var stream = locStream.create(id, rate, false);
+	var stream = LocStream.create(id, rate, false);
 
 	test.expect(1);
 
@@ -39,7 +40,7 @@ specify('request-absolute', function(test){
 
 // test that lat/lng differences get put in stream
 specify('request-relative', function(test){
-	var stream = locStream.create(id, rate, true);
+	var stream = DiffStream.create(id, rate, true);
 
 	test.expect(1);
 
@@ -86,7 +87,7 @@ specify('exceptions', function(test){
 
 	for(var i = 0; i < list.length; i++){
 		try{
-			locStream.create.apply(null, list[i]);
+			LocStream.create.apply(null, list[i]);
 			// should never get here
 			test.ok(false);
 		}catch(e){
