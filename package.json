@@ -9,10 +9,10 @@
            "name": "Jamie Clinton",
            "email": "jcclinton24@gmail.com",
            "web": "http://jcclinton24@gmail.com"
-       } 
+       }
    ],
    "contributors": [
-],
+	],
    "bugs": {
    },
    "licenses": [
@@ -26,9 +26,9 @@
    "cpu": ["x86", "ppc", "x86_64"],
    "engines": ["v8", "ejs", "node", "rhino"],
    "scripts": {
-       "test": "test.js" 
+       "test": "./test/test.sh"
    },
    "directories": {
-       "lib": "lib",
-   } 
+       "lib": "lib"
+   }
 }
