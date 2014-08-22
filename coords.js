@@ -1,7 +1,6 @@
 var Readable = require('stream').Readable;
 var util = require('util');
 var https = require('https');
-var _ = require('underscore');
 
 
 exports.create = function(id, rate, transform){
@@ -21,13 +20,13 @@ util.inherits(LocStream, Readable);
 // rate is how often you want to request info, it is measured in seconds between requests
 // showDiff is a boolean that determines whether the lat/long relative to the last update will be shown or the absolute lat/long values
 function LocStream(id, rate, showDiff){
-	if(!_.isNumber(id) || id <= 0){
+	if( typeof id !== "number" || id <= 0){
 		throw "invalid id";
 	}
 
 	// rate is the number of requests per minute
 	// it must be a non-negative integer
-	if( !_.isNumber(rate) || rate <= 0 ){
+	if( typeof rate !== "number" || rate <= 0 ){
 		throw "invalid rate";
 	}
 
