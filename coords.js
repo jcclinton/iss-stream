@@ -42,11 +42,17 @@ function LocStream(id, rate, showDiff){
 	this._delayTimer = null;
 }
 
+/**
+* _read is a private method used by the Readable class to extract data from the underlying resource
+* in this case, the data is taken from the run function so _read does nothing
+*
+*/
 LocStream.prototype._read = function(n){
 	return this.push('');
 }
 
 // starts requesting data from the server
+// when the data arrives, it will be put onto the stream
 LocStream.prototype.start = function(){
 		if( this._running ){
 			return;
@@ -70,11 +76,12 @@ LocStream.prototype.stop = function(){
 
 // private functions
 
+// request data from wheretheiss website
+// when it arrives, put it in the stream
 function run(){
 		var that = this;
 
 	// if we are not running, dont do anything
-	// if there is already a main timer, dont do anything
 	if( !this._running ){
 		return;
 	}
@@ -84,11 +91,14 @@ function run(){
 		//console.log(res.headers["x-rate-limit-remaining"]);
 
 		if( res.statusCode == 200 ){
+			// data is valid
 			res.on('data', function(data){
+				// format response data and then push it to the stream
 				that.push(format.call(that, data));
 			});
 
 			// set next request to fire after a timeout
+			// dont set timeout if we have stopped running
 			if( that._running ){
 				setTimeout(function(){
 					run.call(that);
@@ -114,9 +124,11 @@ function run(){
 
 }
 
-// takes the given json object from the server
+// takes the given buffer
+// converts it to an object
 // gives it proper formatting
-// output of this function gets pushed to the stream
+//
+// return value of this function gets pushed to the stream
 function format(buffer){
 
 	var lat
@@ -140,13 +152,13 @@ function format(buffer){
 	};
 
 
-	// if we only care about lat/long difference
 	if( this._showDiff ){
+		// print relative lat/long difference
 
-		// first time running
-		// dont push data onto stream
-		// since there is nothing to show
 		if( this.lastLat == null || this.lastLng == null ){
+			// first time running
+			// dont push data onto stream
+			// since there is nothing to show
 			this.lastLat = lat;
 			this.lastLng = lng;
 			return '';
@@ -167,10 +179,12 @@ function format(buffer){
 	return objToBuffer(output);
 }
 
+// converts buffer to object
 function bufferToObj(buffer){
 	return JSON.parse(buffer.toString());
 }
 
+// converts object to buffer
 function objToBuffer(obj){
 	return new Buffer(JSON.stringify(obj));
 }
