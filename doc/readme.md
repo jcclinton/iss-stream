@@ -5,5 +5,5 @@ Import lib/loc\_stream.js. Create readable stream by calling `create(id, rate, s
 
 Id and rate must be non-negative numbers or an exception will be thrown.
 
-##### test
+###### test
 To run the unit tests, run `npm-run-script test` from the command line in the top level directory of the library.
